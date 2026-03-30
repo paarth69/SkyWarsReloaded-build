@@ -243,7 +243,9 @@ public class PlayerStat {
                     eventTime = Util.get().secondsToTimeString(nextEvent.getStartTime() - gMap.getTimer());
                 }
 
-                return line
+                int maxP = gMap.getMaxPlayers();
+                
+                String res = line
                         .replace("{players_needed}", (gMap.getAllPlayers().size() >= gMap.getMinTeams() ? "0" : gMap.getMinTeams()-gMap.getAllPlayers().size()) + "")
                         .replace("{waitingtimer}", Util.get().getFormattedTime(gMap.getTimer()))
                         .replace("{nextevent_time}", eventTime)
@@ -252,8 +254,8 @@ public class PlayerStat {
                         .replace("{mapname}", gMap.getDisplayName())
                         .replace("{time}", "" + Util.get().getFormattedTime(gMap.getTimer()))
                         .replace("{aliveplayers}", "" + gMap.getAlivePlayers().size())
-                        .replace("{players}", "" + currentPlayers)
-                        .replace("{maxplayers}", "" + gMap.getTeamCards().size() * gMap.getTeamSize())
+                        .replace("{players}", "" + currentPlayers);
+                        res = res.replace("{maxplayers}", String.valueOf(maxP))
                         .replace("{winner}", SkyWarsReloaded.getCfg().usePlayerNames() ? getWinnerName(gMap,0) : getWinningTeamName(gMap))
                         .replace("{winner1}", SkyWarsReloaded.getCfg().usePlayerNames() ? getWinnerName(gMap,0) : getWinningTeamName(gMap))
                         .replace("{winner2}", SkyWarsReloaded.getCfg().usePlayerNames() ? getWinnerName(gMap,1) : "remove")
@@ -269,6 +271,19 @@ public class PlayerStat {
                         .replace("{healthvote}", ChatColor.stripColor(gMap.getCurrentHealth()))
                         .replace("{weathervote}", ChatColor.stripColor(gMap.getCurrentWeather()))
                         .replace("{modifiervote}", ChatColor.stripColor(gMap.getCurrentModifier()));
+                
+                // Add remaining time placeholder
+                int maxGameTime = SkyWarsReloaded.getCfg().getMaxGameTime();
+                String timeLeft;
+                if (maxGameTime <= 0) {
+                    timeLeft = "∞";
+                } else {
+                    int remaining = maxGameTime - gMap.getTimer();
+                    timeLeft = remaining > 0 ? Util.get().getFormattedTime(remaining) : "0:00";
+                }
+                res = res.replace("{timeleft}", timeLeft);
+                
+                return res;
             }
         }
         return "";
@@ -307,6 +322,7 @@ public class PlayerStat {
             }
         }
         scoreboards.remove(player);
+        player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
     }
 
     private static SkywarsBoard getPlayerScoreboard(Player player) {

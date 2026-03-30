@@ -7,8 +7,13 @@ import com.walrusone.skywarsreloaded.utilities.Util;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import com.walrusone.skywarsreloaded.enums.Vote;
+import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -53,7 +58,7 @@ public class Config {
             "DIAMOND_SWORD", "NOTE_BLOCK",
             "DRAGON_EGG",
             "GLASS", "SHIELD");
-    private final List<String> defItems12 = Arrays.asList("EYE_OF_ENDER", "COMPASS", "END_CRYSTAL",
+    private final List<String> defItems12 = Arrays.asList("ENDER_EYE", "COMPASS", "END_CRYSTAL",
             "BARRIER", "FEATHER", "FEATHER",
             "IRON_DOOR",
             "SHIELD", "NETHER_STAR", "STONE_SWORD", "IRON_SWORD", "DIAMOND_SWORD", "WOOD_HOE",
@@ -66,13 +71,13 @@ public class Config {
             "REDSTONE_TORCH_OFF",
             "REDSTONE_COMPARATOR",
             "WOOD_SWORD",
-            "EYE_OF_ENDER",
+            "ENDER_EYE",
             "BLAZE_POWDER",
             "ARROW",
             "DIAMOND_SWORD", "NOTE_BLOCK",
             "DRAGON_EGG",
             "STAINED_GLASS", "SHIELD");
-    private final List<String> defItems8 = Arrays.asList("EYE_OF_ENDER", "COMPASS", "WATCH",
+    private final List<String> defItems8 = Arrays.asList("ENDER_EYE", "COMPASS", "WATCH",
             "BARRIER", "FEATHER", "FEATHER",
             "IRON_DOOR",
             "DIAMOND", "NETHER_STAR", "STONE_SWORD", "IRON_SWORD", "DIAMOND_SWORD", "WOOD_HOE",
@@ -85,7 +90,7 @@ public class Config {
             "REDSTONE_TORCH_OFF",
             "REDSTONE_COMPARATOR",
             "WOOD_SWORD",
-            "EYE_OF_ENDER",
+            "ENDER_EYE",
             "BLAZE_POWDER",
             "ARROW",
             "DIAMOND_SWORD", "NOTE_BLOCK",
@@ -183,6 +188,7 @@ public class Config {
     private boolean fireworksEnabled;
     private int fireworksPer5Tick;
     private int maxMapSize;
+    private int maxGameTime;
     private Location spawn;
     private boolean lookDirectionEnabled;
     private boolean pressurePlate;
@@ -265,6 +271,11 @@ public class Config {
     private List<String> gameServers = Lists.newArrayList();
     private boolean isLobbyServer = false;
 
+    private boolean useCustomChestTypes = true;
+    private List<CustomChestType> customChestTypes = new ArrayList<>();
+    private int chestVoteRandomSlot = 9;
+    private int chestVoteMenuSize = 36;
+
     private boolean useSlimeWorldManager = false;
     private String slimeWorldManagerSource = "file";
     private boolean usePartyAndFriends = false;
@@ -273,6 +284,11 @@ public class Config {
     private boolean checkForBetaVersion = true;
     private boolean displayTimerOnLevelbar = true;
     private String teamJoinSound;
+
+    // Teams direct assign mode (skips waiting lobby)
+    private boolean skipTeamWaitingLobby = true;
+    private int teamFillSize = 2;
+    private boolean disableTeamSelection = true;
 
     public Config() {
         load();
@@ -349,6 +365,7 @@ public class Config {
             kitVotingEnabled =      SkyWarsReloaded.get().getConfig().getBoolean("game.kitVotingEnabled");
             spectateEnabled =       SkyWarsReloaded.get().getConfig().getBoolean("game.spectateEnabled");
             maxMapSize =            SkyWarsReloaded.get().getConfig().getInt("game.maxMapSize");
+            maxGameTime =           SkyWarsReloaded.get().getConfig().getInt("game.maxGameTime", 0);
             pressurePlate =         SkyWarsReloaded.get().getConfig().getBoolean("enablePressurePlateJoin");
             teleportOnJoin =        SkyWarsReloaded.get().getConfig().getBoolean("teleportToSpawnOnJoin");
             teleportOnWorldEnter =  SkyWarsReloaded.get().getConfig().getBoolean("teleportToSpawnOnWorldEnter");
@@ -372,6 +389,9 @@ public class Config {
             }
             useSeparateCages =          SkyWarsReloaded.get().getConfig().getBoolean("teams.useSeparateCages");
             changeTablistNames =        SkyWarsReloaded.get().getConfig().getBoolean("teams.changeTablistNames");
+            skipTeamWaitingLobby =      SkyWarsReloaded.get().getConfig().getBoolean("teams.skipWaitingLobby", true);
+            teamFillSize =              SkyWarsReloaded.get().getConfig().getInt("teams.fillSize", 2);
+            disableTeamSelection =      SkyWarsReloaded.get().getConfig().getBoolean("teams.disableTeamSelection", true);
 
             maxPartySize =              SkyWarsReloaded.get().getConfig().getInt("parties.maxPartySize");
             partyEnabled =              SkyWarsReloaded.get().getConfig().getBoolean("parties.enabled");
@@ -381,6 +401,11 @@ public class Config {
             loadTrappedChestsAsCenter = SkyWarsReloaded.get().getConfig().getBoolean("chests.loadTrappedChestsAsCenter", true);
             maxChest =                  SkyWarsReloaded.get().getConfig().getInt("chests.maxItemsChest");
             maxDoubleChest =            SkyWarsReloaded.get().getConfig().getInt("chests.maxItemsDoubleChest");
+
+            useCustomChestTypes =       SkyWarsReloaded.get().getConfig().getBoolean("chests.useCustomChestTypes", true);
+            chestVoteRandomSlot =       SkyWarsReloaded.get().getConfig().getInt("chests.chestVoteRandomSlot", 9);
+            chestVoteMenuSize =         SkyWarsReloaded.get().getConfig().getInt("chests.chestVoteMenuSize", 36);
+            loadCustomChestTypes();
 
             useHolograms =              SkyWarsReloaded.get().getConfig().getBoolean("holograms.enabled");
 
@@ -537,6 +562,45 @@ public class Config {
         }
     }
 
+    private void loadCustomChestTypes() {
+        customChestTypes.clear();
+        ConfigurationSection section = SkyWarsReloaded.get().getConfig().getConfigurationSection("chests.customChestTypes");
+        if (section == null) return;
+
+        Vote[] customVotes = {
+                Vote.CHESTCUSTOM1, Vote.CHESTCUSTOM2, Vote.CHESTCUSTOM3,
+                Vote.CHESTCUSTOM4, Vote.CHESTCUSTOM5, Vote.CHESTCUSTOM6,
+                Vote.CHESTCUSTOM7, Vote.CHESTCUSTOM8, Vote.CHESTCUSTOM9
+        };
+        // Map built-in IDs to their Vote values
+        Map<String, Vote> builtInVotes = new LinkedHashMap<>();
+        builtInVotes.put("basic", Vote.CHESTBASIC);
+        builtInVotes.put("normal", Vote.CHESTNORMAL);
+        builtInVotes.put("op", Vote.CHESTOP);
+        builtInVotes.put("scavenger", Vote.CHESTSCAVENGER);
+
+        int customIndex = 0;
+        for (String key : section.getKeys(false)) {
+            String displayName = section.getString(key + ".displayName", key);
+            String material = section.getString(key + ".material", "CHEST");
+            int slot = section.getInt(key + ".slot", 11 + (customChestTypes.size() * 2));
+            String chestFile = section.getString(key + ".chestFile", "");
+            String centerChestFile = section.getString(key + ".centerChestFile", "");
+            Vote vote;
+            if (builtInVotes.containsKey(key.toLowerCase())) {
+                vote = builtInVotes.get(key.toLowerCase());
+            } else {
+                if (customIndex >= customVotes.length) {
+                    SkyWarsReloaded.get().getLogger().warning("Too many custom chest types! Maximum is " + (customVotes.length + builtInVotes.size()) + ". Skipping: " + key);
+                    continue;
+                }
+                vote = customVotes[customIndex++];
+            }
+
+            customChestTypes.add(new CustomChestType(key, displayName, material, slot, chestFile, centerChestFile, vote));
+        }
+    }
+
     private void addMaterial(String key, String mat, String def) {
         int data = -1;
         String matWithData = "";
@@ -627,6 +691,7 @@ public class Config {
         SkyWarsReloaded.get().getConfig().set("fireworks.enabled", fireworksEnabled);
         SkyWarsReloaded.get().getConfig().set("game.spectateEnabled", spectateEnabled);
         SkyWarsReloaded.get().getConfig().set("game.maxMapSize", maxMapSize);
+        SkyWarsReloaded.get().getConfig().set("game.maxGameTime", maxGameTime);
         SkyWarsReloaded.get().getConfig().set("game.tauntsEnabled", tauntsEnabled);
         SkyWarsReloaded.get().getConfig().set("enablePressurePlateJoin", pressurePlate);
         SkyWarsReloaded.get().getConfig().set("teleportToSpawnOnJoin", teleportOnJoin);
@@ -647,6 +712,9 @@ public class Config {
         SkyWarsReloaded.get().getConfig().set("teams.useTeamMaterialBytes", useTeamMaterialBytes);
         SkyWarsReloaded.get().getConfig().set("teams.useSeparateCages", useSeparateCages);
         SkyWarsReloaded.get().getConfig().set("teams.changeTablistNames", changeTablistNames);
+        SkyWarsReloaded.get().getConfig().set("teams.skipWaitingLobby", skipTeamWaitingLobby);
+        SkyWarsReloaded.get().getConfig().set("teams.fillSize", teamFillSize);
+        SkyWarsReloaded.get().getConfig().set("teams.disableTeamSelection", disableTeamSelection);
 
         SkyWarsReloaded.get().getConfig().set("parties.maxPartySize", maxPartySize);
         SkyWarsReloaded.get().getConfig().set("parties.enabled", partyEnabled);
@@ -817,6 +885,10 @@ public class Config {
 
     public int getMaxMapSize() {
         return maxMapSize;
+    }
+
+    public int getMaxGameTime() {
+        return maxGameTime;
     }
 
     public Location getSpawn() {
@@ -1389,6 +1461,17 @@ public class Config {
     }
 
     public String getTeamJoinSound() { return teamJoinSound; }
+
+    // Teams direct assign mode getters
+    public boolean isSkipTeamWaitingLobby() { return skipTeamWaitingLobby; }
+    public int getTeamFillSize() { return teamFillSize; }
+    public boolean isDisableTeamSelection() { return disableTeamSelection; }
+
+    // Custom chest types
+    public boolean isUseCustomChestTypes() { return useCustomChestTypes; }
+    public List<CustomChestType> getCustomChestTypes() { return customChestTypes; }
+    public int getChestVoteRandomSlot() { return chestVoteRandomSlot; }
+    public int getChestVoteMenuSize() { return chestVoteMenuSize; }
 
 }
 

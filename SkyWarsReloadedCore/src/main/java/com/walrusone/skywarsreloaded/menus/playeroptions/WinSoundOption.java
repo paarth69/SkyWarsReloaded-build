@@ -40,29 +40,12 @@ public class WinSoundOption extends PlayerOption {
         this.menuSize = menuSize;
     }
 
-    private static void saveWinFile(String filename) {
-        SkyWarsReloaded.get().saveResource(filename, false);
-        File sf = new File(SkyWarsReloaded.get().getDataFolder(), filename);
-        if (sf.exists()) {
-            boolean result = sf.renameTo(new File(SkyWarsReloaded.get().getDataFolder(), "winsounds.yml"));
-            if (!result) {
-                SkyWarsReloaded.get().getLogger().info("Failed to rename Winsounds File");
-            }
-        }
-    }
-
     public static void loadPlayerOptions() {
         playerOptions.clear();
         File soundFile = new File(SkyWarsReloaded.get().getDataFolder(), "winsounds.yml");
 
         if (!soundFile.exists()) {
-            if (SkyWarsReloaded.getNMS().getVersion() < 9) {
-                saveWinFile("winsounds18.yml");
-            } else if (SkyWarsReloaded.getNMS().getVersion() < 13) {
-                saveWinFile("winsounds112.yml");
-            } else {
-                SkyWarsReloaded.get().saveResource("winsounds.yml", false);
-            }
+            SkyWarsReloaded.get().saveResource("winsounds.yml", false);
         }
 
         if (soundFile.exists()) {

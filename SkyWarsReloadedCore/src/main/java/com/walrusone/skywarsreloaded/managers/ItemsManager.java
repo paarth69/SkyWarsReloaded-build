@@ -2,6 +2,7 @@ package com.walrusone.skywarsreloaded.managers;
 
 import com.google.common.collect.Lists;
 import com.walrusone.skywarsreloaded.SkyWarsReloaded;
+import com.walrusone.skywarsreloaded.config.CustomChestType;
 import com.walrusone.skywarsreloaded.utilities.Messaging;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +18,7 @@ public class ItemsManager {
     public ItemsManager() {
         getMatchStartItems();
         getChestVoteItems();
+        getCustomChestVoteItems();
         getHealthVoteItems();
         getTimeVoteItems();
         getWeatherVoteItems();
@@ -80,7 +82,6 @@ public class ItemsManager {
 
     private void getLobbyItem() {
         List<String> lore = new ArrayList<>();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-open"));
 
         addItem("optionselect", lore, "items.skywars-options");
         addItem("joinselect", lore, "items.joinmenu");
@@ -91,7 +92,6 @@ public class ItemsManager {
 
     private void getMatchStartItems() {
         List<String> lore = Lists.newArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-open"));
 
         if (SkyWarsReloaded.getCfg().kitVotingEnabled()) {
             addItem("kitvote", lore, "items.kit-vote-item");
@@ -102,7 +102,6 @@ public class ItemsManager {
         addItem("teamSelectItem", lore, "items.team-select-item");
 
         lore.clear();
-        lore.add(new Messaging.MessageFormatter().format("items.lclick-to-open"));
         addItem("chestvote", lore, "items.chest-item");
         addItem("healthvote", lore, "items.health-item");
         addItem("nopermission", lore, "items.no-perm");
@@ -111,19 +110,16 @@ public class ItemsManager {
         addItem("modifiervote", lore, "items.modifier-item");
 
         lore.clear();
-        lore.add(new Messaging.MessageFormatter().format("items.lclick-to-exit"));
         addItem("exitMenuItem", lore, "items.exit-menu-item");
         addItem("nextPageItem", lore, "items.next-page-item");
         addItem("prevPageItem", lore, "items.prev-page-item");
 
         lore.clear();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-exit"));
         addItem("exitGameItem", lore, "items.exit-door-item");
     }
 
     private void getChestVoteItems() {
         List<String> lore = Lists.newArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-vote"));
 
         addItem("chestrandom", lore, "items.chest-random");
         addItem("chestbasic", lore, "items.chest-basic");
@@ -132,9 +128,36 @@ public class ItemsManager {
         addItem("chestscavenger", lore, "items.chest-scavenger");
     }
 
+    private void getCustomChestVoteItems() {
+        if (!SkyWarsReloaded.getCfg().isUseCustomChestTypes()) return;
+        List<String> lore = Lists.newArrayList();
+        for (CustomChestType ct : SkyWarsReloaded.getCfg().getCustomChestTypes()) {
+            String itemKey = "chestcustom_" + ct.getId();
+            addExtraItemDirect(itemKey, lore, ct.getMaterial(), ct.getDisplayName());
+        }
+    }
+
+    private void addExtraItemDirect(String materialref, List<String> lore, String materialName, String displayName) {
+        int data = -1;
+        String matWithData = "";
+        String[] matParts = materialName.split(":");
+        if (matParts.length == 2) {
+            matWithData = matParts[0];
+            data = Integer.parseInt(matParts[1]);
+        }
+        ItemStack item;
+        if (data != -1) {
+            item = SkyWarsReloaded.getNMS().getColorItem(matWithData, (byte) data);
+        } else {
+            item = new ItemStack(Material.valueOf(materialName.toUpperCase()), 1);
+        }
+        String coloredName = org.bukkit.ChatColor.translateAlternateColorCodes('&', displayName);
+        ItemStack addItem = SkyWarsReloaded.getNMS().getItemStack(item, lore, coloredName);
+        gameItems.put(materialref, addItem);
+    }
+
     private void getHealthVoteItems() {
         List<String> lore = new ArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-vote"));
 
         addItem("healthrandom", lore, "items.health-random");
         addItem("healthfive", lore, "items.health-five");
@@ -145,7 +168,6 @@ public class ItemsManager {
 
     private void getTimeVoteItems() {
         List<String> lore = new ArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-vote"));
 
         addItem("timerandom", lore, "items.time-random");
         addItem("timedawn", lore, "items.time-dawn");
@@ -156,7 +178,6 @@ public class ItemsManager {
 
     private void getWeatherVoteItems() {
         List<String> lore = new ArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-vote"));
 
         addItem("weatherrandom", lore, "items.weather-random");
         addItem("weathersunny", lore, "items.weather-sunny");
@@ -167,7 +188,6 @@ public class ItemsManager {
 
     private void getModifierVoteItems() {
         List<String> lore = new ArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.click-to-vote"));
 
         addItem("modifierrandom", lore, "items.modifier-random");
         addItem("modifierspeed", lore, "items.modifier-speed");
@@ -178,7 +198,6 @@ public class ItemsManager {
 
     private void getOptionItems() {
         List<String> lore = new ArrayList();
-        lore.add(new Messaging.MessageFormatter().format("items.lclick-to-open"));
 
         addItem("particleselect", lore, "items.particle-effect-sel");
         addItem("projectileselect", lore, "items.projectile-effect-sel");

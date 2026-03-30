@@ -118,22 +118,20 @@ public abstract class GameOption {
 
     public HashMap<Vote, Integer> getVotes(boolean getRandom) {
         HashMap<Vote, Integer> votes = new HashMap<>();
-        votes.put(voteList.get(0), 0);
-        votes.put(voteList.get(1), 0);
-        votes.put(voteList.get(2), 0);
-        votes.put(voteList.get(3), 0);
-        votes.put(voteList.get(4), 0);
+        for (Vote v : voteList) {
+            votes.put(v, 0);
+        }
 
         for (PlayerCard pCard : gameMap.getPlayerCards()) {
             Player player = pCard.getPlayer();
             if (player != null) {
                 Vote vote = getVote(pCard);
                 if (vote != null) {
-                    if ((vote == Vote.TIMERANDOM || vote == Vote.WEATHERRANDOM || vote == Vote.MODIFIERRANDOM || vote == Vote.CHESTRANDOM) && getRandom) {
+                    if ((vote == Vote.TIMERANDOM || vote == Vote.WEATHERRANDOM || vote == Vote.MODIFIERRANDOM || vote == Vote.CHESTRANDOM || vote == Vote.HEALTHRANDOM) && getRandom) {
                         vote = getRandomVote();
                     }
                     int multiplier = Util.get().getMultiplier(player);
-                    votes.put(vote, votes.get(vote) + (multiplier));
+                    votes.put(vote, votes.getOrDefault(vote, 0) + (multiplier));
                 }
             }
         }
@@ -166,6 +164,9 @@ public abstract class GameOption {
         item.setAmount(votes.get(vote) == 0 ? 1 : votes.get(vote));
         ItemMeta itemMeta = item.getItemMeta();
         List<String> lores = itemMeta.getLore();
+        if (lores == null) {
+            lores = new ArrayList<>();
+        }
         lores.add(" ");
         lores.add(new Messaging.MessageFormatter().setVariable("number", "" + votes.get(vote)).format("game.vote-display"));
         itemMeta.setLore(lores);
@@ -190,6 +191,17 @@ public abstract class GameOption {
     }
 
     public String getVoteString(Vote vote) {
+        // Check custom chest types first
+        if (SkyWarsReloaded.getCfg().isUseCustomChestTypes()) {
+            if (vote == Vote.CHESTRANDOM) {
+                return new Messaging.MessageFormatter().format("items.chest-random");
+            }
+            for (com.walrusone.skywarsreloaded.config.CustomChestType ct : SkyWarsReloaded.getCfg().getCustomChestTypes()) {
+                if (ct.getVote() == vote) {
+                    return org.bukkit.ChatColor.translateAlternateColorCodes('&', ct.getDisplayName());
+                }
+            }
+        }
         switch (vote) {
             case CHESTRANDOM:
                 return new Messaging.MessageFormatter().format("items.chest-random");

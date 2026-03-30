@@ -64,6 +64,9 @@ public class PlayerManager {
             this.swr.getLogger().warning("Player data was null when leaving game!");
         }
 
+        // Explicitly reset scoreboard
+        PlayerStat.resetScoreboard(playerRemoved);
+
         // Filter which type of remove we should perform
         // Player is in an arena - else we don't handle removes
         if (gameMap != null) {
@@ -72,8 +75,7 @@ public class PlayerManager {
             boolean shouldSendToLobby = shouldSendToLobbyIn;
             // Player is waiting before game start
             if (mState.equals(MatchState.WAITINGSTART) ||
-                    mState.equals(MatchState.WAITINGLOBBY) ||
-                    mState.equals(MatchState.ENDING)
+                    mState.equals(MatchState.WAITINGLOBBY)
             ) {
                 // Process main remove
                 this.removeWaitingPlayer(
@@ -110,6 +112,26 @@ public class PlayerManager {
                 } else {
                     this.swr.getLogger().warning(
                             "Tried to remove a player from a playing game that was neither a spectator nor an alive player!");
+                }
+            } else if (mState.equals(MatchState.ENDING)) {
+                if (gameMap.getSpectators().contains(pUuid)) {
+                    this.removeSpectatorPlayer(
+                            playerRemoved,
+                            pUuid,
+                            gameMap,
+                            playerData,
+                            removeReason,
+                            announceToOthers
+                    );
+                } else {
+                    this.removeWaitingPlayer(
+                            playerRemoved,
+                            pUuid,
+                            gameMap,
+                            playerData,
+                            removeReason,
+                            announceToOthers
+                    );
                 }
             }
             // Should player be restored back to how they were before entering the game
@@ -162,10 +184,14 @@ public class PlayerManager {
                 String cageName = ps.getGlassColor();
                 if (gameMap.getTeamSize() == 1 || SkyWarsReloaded.getCfg().isUseSeparateCages()) {
                     // If is custom cage, use WorldEdit to undo that operation.
-                    if (cageName.startsWith("custom-")) {
+                    if (cageName != null && cageName.startsWith("custom-")) {
                         new SchematicCage().removeSpawnPlatform(gameMap, playerRemoved);
                     } else {
-                        gameMap.getCage().removeSpawnHousing(gameMap, gameMap.getTeamCard(playerRemoved), false);
+                        // When using separate cages, remove only the player's cage, not the whole team's
+                        PlayerCard playerCard = gameMap.getPlayerCard(playerRemoved);
+                        if (playerCard != null) {
+                            gameMap.getCage().removeSpawnHousing(gameMap, playerCard, false);
+                        }
                     }
                 }
             }
@@ -208,6 +234,10 @@ public class PlayerManager {
                         .setVariable("players", "" + gameMap.getPlayerCount())
                         .setVariable("playercount", "" + gameMap.getPlayerCount())
                         .setVariable("maxplayers", "" + gameMap.getMaxPlayers()).format("game.waitstart-left-the-game"), playerRemoved);
+            } else if (isGameEnding) {
+                matchManager.message(gameMap, new Messaging.MessageFormatter()
+                        .setVariable("player", playerRemoved.getName())
+                        .format("game.left-the-game"), playerRemoved);
             }
         }
     }
@@ -241,6 +271,9 @@ public class PlayerManager {
         // ---------------- GAME MAP UPDATES -----------------
         // Remove from spectators
         gameMap.removePlayer(pUuid);
+        if (SkyWarsReloaded.get().getSpectatorItemsManager() != null) {
+            SkyWarsReloaded.get().getSpectatorItemsManager().exitSpectate(playerRemoved, false);
+        }
 
         // ------------------- MESSAGES --------------------
         // TODO: Tell other spectators that a spectator has left?
@@ -493,6 +526,20 @@ public class PlayerManager {
         }
         Util.get().sendActionBar(killer, new Messaging.MessageFormatter().setVariable("xp", "" + multiplier * SkyWarsReloaded.getCfg().getKillerXP()).format("game.kill-actionbar"));
         Util.get().doCommands(SkyWarsReloaded.getCfg().getKillCommands(), killer);
+    }
+
+    /**
+     * Check if a player is spectating a game.
+     * This method is used by spectatorItems system through reflection.
+     * 
+     * @param player The player to check
+     * @return true if the player is spectating, false otherwise
+     */
+    public boolean isSpectator(Player player) {
+        if (player == null) return false;
+        GameMap gameMap = matchManager.getPlayerMap(player);
+        if (gameMap == null) return false;
+        return gameMap.getSpectators().contains(player.getUniqueId());
     }
 
 }

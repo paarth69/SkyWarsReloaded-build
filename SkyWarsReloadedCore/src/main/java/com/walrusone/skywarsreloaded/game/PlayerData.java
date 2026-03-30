@@ -109,6 +109,8 @@ public class PlayerData {
             pInv.setContents(savedInv);
             pInv.setArmorContents(savedArmor);
             SkyWarsReloaded.getNMS().setMaxHealth(player, 20);
+            player.setHealthScale(20);
+            player.setHealthScaled(false);
             // Remove death screen for player - this will send them to spawn so we undo that by TP back
             this.locationBeforeRespawn = player.getLocation();
             Util.get().respawnPlayer(player);

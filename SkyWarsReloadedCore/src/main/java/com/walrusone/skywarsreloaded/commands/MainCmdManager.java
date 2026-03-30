@@ -21,8 +21,6 @@ public class MainCmdManager implements CommandExecutor, SWRCmdManagerAPI {
     public MainCmdManager() {
         cm = this;
         admincmds.add(new ReloadCmd("sw"));
-        admincmds.add(new ChestAddCmd("sw"));
-        admincmds.add(new ChestEditCmd("sw"));
         admincmds.add(new SetStatsCmd("sw"));
         admincmds.add(new ClearStatsCmd("sw"));
         admincmds.add(new SetSpawnCmd("sw"));

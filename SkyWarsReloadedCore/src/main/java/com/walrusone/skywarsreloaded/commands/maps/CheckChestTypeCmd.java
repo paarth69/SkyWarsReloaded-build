@@ -27,7 +27,7 @@ public class CheckChestTypeCmd extends com.walrusone.skywarsreloaded.commands.Ba
         }
 
         Block block = player.getTargetBlock(null, 5);
-        if (block == null || (block.getType() != Material.CHEST && block.getType() != Material.TRAPPED_CHEST)) {
+        if (block == null || (block.getType() != Material.CHEST && block.getType() != Material.TRAPPED_CHEST && block.getType() != Material.WAXED_OXIDIZED_COPPER_CHEST)) {
             // error
             sender.sendMessage(new Messaging.MessageFormatter().format("error.not-looking-at-chest"));
             return true;

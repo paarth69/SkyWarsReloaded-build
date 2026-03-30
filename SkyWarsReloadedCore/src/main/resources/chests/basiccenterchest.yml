@@ -1,0 +1,120 @@
+# SkyWarsReloaded - New Chest Loot System
+#
+# FLOW:
+# 1. A category is randomly selected based on 'chance' (weighted random)
+# 2. The total item count is rolled from 'amount' range
+# 3. Each 'type' contributes items based on its 'percentage' of total
+# 4. Items from 'loot' are selected based on their individual 'chance'
+#
+# ITEM FORMAT: material,chance,amount[,name:value][,lore:line1|line2][,enchants:enchant-level|...]
+# Examples:
+#   - bread,30,10-20                    (basic item)
+#   - diamond_sword,10,1                (single item, 10% chance)
+#   - iron_helmet,50,1,enchants:protection-2|unbreaking-1
+#   - golden_apple,25,1-3,name:&6Special Apple,lore:&7A rare treat|&7Very tasty
+
+categories:
+  # Basic category - most common, basic items
+  basic:
+    chance: 50
+    amount: 8-12
+    items:
+      food:
+        percentage: 25
+        loot:
+          - bread,60,3-8
+          - apple,50,2-5
+          - cooked_beef,40,2-4
+          - golden_apple,10,1
+      blocks:
+        percentage: 30
+        loot:
+          - oak_planks,70,16-32
+          - cobblestone,65,16-32
+          - stone,50,8-16
+      tools:
+        percentage: 25
+        loot:
+          - wooden_sword,60,1
+          - stone_sword,40,1
+          - wooden_pickaxe,50,1
+          - stone_pickaxe,35,1
+      armor:
+        percentage: 20
+        loot:
+          - leather_helmet,50,1
+          - leather_chestplate,45,1
+          - leather_leggings,45,1
+          - leather_boots,50,1
+          - chainmail_helmet,25,1
+          - chainmail_chestplate,20,1
+
+  # Medium category - balanced mix
+  medium:
+    chance: 35
+    amount: 6-10
+    items:
+      food:
+        percentage: 20
+        loot:
+          - cooked_beef,55,3-6
+          - golden_apple,25,1-2
+          - bread,45,4-8
+      blocks:
+        percentage: 25
+        loot:
+          - oak_planks,60,24-48
+          - cobblestone,55,16-32
+          - obsidian,15,1-3
+      weapons:
+        percentage: 30
+        loot:
+          - stone_sword,55,1
+          - iron_sword,35,1
+          - bow,40,1
+          - arrow,50,8-16
+      armor:
+        percentage: 25
+        loot:
+          - chainmail_helmet,45,1
+          - chainmail_chestplate,40,1
+          - iron_helmet,30,1
+          - iron_chestplate,25,1
+          - iron_leggings,25,1
+          - iron_boots,30,1
+
+  # Rare category - good items, less common
+  rare:
+    chance: 15
+    amount: 5-8
+    items:
+      food:
+        percentage: 15
+        loot:
+          - golden_apple,45,1-2
+          - enchanted_golden_apple,5,1
+          - cooked_beef,50,4-8
+      weapons:
+        percentage: 35
+        loot:
+          - iron_sword,50,1
+          - diamond_sword,20,1
+          - bow,45,1,enchants:power-1
+          - arrow,60,16-32
+          - iron_sword,30,1,enchants:sharpness-1
+      armor:
+        percentage: 35
+        loot:
+          - iron_helmet,50,1
+          - iron_chestplate,45,1
+          - iron_leggings,45,1
+          - iron_boots,50,1
+          - diamond_helmet,15,1
+          - diamond_chestplate,10,1
+          - iron_chestplate,25,1,enchants:protection-1
+      special:
+        percentage: 15
+        loot:
+          - ender_pearl,35,1-2
+          - tnt,30,1-3
+          - fishing_rod,25,1,enchants:knockback-1

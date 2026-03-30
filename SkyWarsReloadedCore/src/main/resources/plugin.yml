@@ -1,20 +1,16 @@
 name: Skywars
 main: com.walrusone.skywarsreloaded.SkyWarsReloaded
 version: ${revision}
-api-version: 1.13
 website: https://gcnt.net/
 author: GaagjesCraft Network Team (GCNT)
+api-version: 1.13
 softdepend:
   - Vault
   - PlaceholderAPI
   - MVdWPlaceholderAPI
   - HolographicDisplays
   - Multiverse-Core
-  - PerWorldInventory
   - WorldEdit
-  - PartyAndFriends
-  - SlimeWorldManager
-  - My_Worlds
 
 commands:
   skywars:
@@ -33,6 +29,10 @@ commands:
     description: This is the main party command.
     aliases: [swm]
     usage: /<command> [args]. Get this error? Then check your console as there was an error somewhere. Please report it here https://gcnt.net/discord !
+  swspectategui:
+    description: Open the spectator arena selection menu.
+    aliases: [swspecgui, swsg]
+    usage: /<command>
 permissions:
   sw.*:
     description: Gives access to all sw commands
@@ -299,3 +299,6 @@ permissions:
   sw.partychatspy:
     description: Allows a person to spy on the chats of all parties
     default: op
+  swspectategui.use:
+    description: Allows a player to use the spectator GUI command.
+    default: true

@@ -419,22 +419,68 @@ public class GameMap {
         // If in any mode & WAITING while countdown & lobby mode is not enabled
         if (getMatchState() == MatchState.WAITINGSTART) {
             TeamCard reservedTeamCard = null;
-            if (teamToTry == null) { // If not in party mode
-                for (TeamCard tCard : teamCards) {
-                    if (SkyWarsReloaded.getCfg().debugEnabled()) {
-                        Bukkit.getLogger().log(Level.WARNING, "#addPlayers: --teamCard: " + (tCard.getPlace() + 1));
-                        Bukkit.getLogger().log(Level.WARNING, "#addPlayers: (" + (tCard.getPlace() + 1) + ") emptySlots: " + tCard.getEmptySlots());
+            // Ignore teamToTry when team selection is disabled (for direct cage mode)
+            TeamCard actualTeamToTry = (SkyWarsReloaded.getCfg().isDisableTeamSelection() && teamSize > 1) ? null : teamToTry;
+            
+            if (actualTeamToTry == null) { // If not in party mode or team selection is disabled
+                // Use balanced team filling when skipTeamWaitingLobby is enabled for teams
+                if (teamSize > 1 && SkyWarsReloaded.getCfg().isSkipTeamWaitingLobby()) {
+                    // Get the fill size from config (default 2)
+                    int fillSize = SkyWarsReloaded.getCfg().getTeamFillSize();
+                    
+                    // Sort teams: prefer teams that have started filling but aren't at fillSize yet
+                    // Priority: 1) teams with players > 0 and players < fillSize, 2) empty teams, 3) teams at or above fillSize
+                    teamCards.sort((t1, t2) -> {
+                        int p1 = t1.getPlayersSize();
+                        int p2 = t2.getPlayersSize();
+                        boolean t1NeedsFill = p1 > 0 && p1 < fillSize && t1.getEmptySlots() > 0;
+                        boolean t2NeedsFill = p2 > 0 && p2 < fillSize && t2.getEmptySlots() > 0;
+                        
+                        // First priority: teams that need to reach fillSize
+                        if (t1NeedsFill && !t2NeedsFill) return -1;
+                        if (!t1NeedsFill && t2NeedsFill) return 1;
+                        
+                        // Second priority among teams that need fill: fewer players first (fill them up)
+                        if (t1NeedsFill && t2NeedsFill) {
+                            return Integer.compare(p2, p1); // More players = closer to fillSize = higher priority
+                        }
+                        
+                        // Among empty teams or full teams: prefer empty teams with available slots
+                        if (p1 == 0 && p2 > 0 && t1.getEmptySlots() > 0) return -1;
+                        if (p2 == 0 && p1 > 0 && t2.getEmptySlots() > 0) return 1;
+                        
+                        // Finally, sort by empty slots (more empty = lower priority, fill teams progressively)
+                        return Integer.compare(p1, p2);
+                    });
+                    
+                    for (TeamCard tCard : teamCards) {
+                        if (SkyWarsReloaded.getCfg().debugEnabled()) {
+                            Bukkit.getLogger().log(Level.WARNING, "#addPlayers: --teamCard: " + (tCard.getPlace() + 1) + " players: " + tCard.getPlayersSize());
+                            Bukkit.getLogger().log(Level.WARNING, "#addPlayers: (" + (tCard.getPlace() + 1) + ") emptySlots: " + tCard.getEmptySlots());
+                        }
+                        if (tCard.getEmptySlots() > 0) { // If space available
+                            reservedTeamCard = tCard.sendReservation(player, ps);
+                            if (reservedTeamCard != null) break;
+                        }
                     }
-                    if (tCard.getEmptySlots() > 0) { // If space available
-                        reservedTeamCard = tCard.sendReservation(player, ps);
-                        if (reservedTeamCard != null) break;
+                } else {
+                    // Original logic for solo mode or when skipTeamWaitingLobby is disabled
+                    for (TeamCard tCard : teamCards) {
+                        if (SkyWarsReloaded.getCfg().debugEnabled()) {
+                            Bukkit.getLogger().log(Level.WARNING, "#addPlayers: --teamCard: " + (tCard.getPlace() + 1));
+                            Bukkit.getLogger().log(Level.WARNING, "#addPlayers: (" + (tCard.getPlace() + 1) + ") emptySlots: " + tCard.getEmptySlots());
+                        }
+                        if (tCard.getEmptySlots() > 0) { // If space available
+                            reservedTeamCard = tCard.sendReservation(player, ps);
+                            if (reservedTeamCard != null) break;
+                        }
                     }
                 }
             } else { // In party mode
-                if (teamToTry.getEmptySlots() > 0) {
-                    reservedTeamCard = teamToTry.sendReservation(player, ps);
+                if (actualTeamToTry.getEmptySlots() > 0) {
+                    reservedTeamCard = actualTeamToTry.sendReservation(player, ps);
                 } else {
-                    SkyWarsReloaded.get().getLogger().warning("Player attempted to join party team but the team referenced is empty (" + player.getName() + ", " + teamToTry.getTeamName() + ")");
+                    SkyWarsReloaded.get().getLogger().warning("Player attempted to join party team but the team referenced is empty (" + player.getName() + ", " + actualTeamToTry.getTeamName() + ")");
                 }
             }
             if (reservedTeamCard != null) { // If setup for player success
@@ -582,7 +628,7 @@ public class GameMap {
     public boolean mapContainsDead(UUID uuid) {
         for (TeamCard tCard : teamCards) {
             for (PlayerCard p : tCard.getPlayerCards()) {
-                if (p.isDead()) return true;
+                if (p.getUUID() != null && p.getUUID().equals(uuid) && p.isDead()) return true;
             }
         }
         return false;
@@ -1144,11 +1190,13 @@ public class GameMap {
                                 chest.getType().equals(Material.TRAPPED_CHEST)) {
                             Block trappedChestBlock = chest.getBlock();
                             if (trappedChestBlock != null) {
-                                // Replace the trapped chest with a chest to avoid anomalies in-game & fix orientation
-                                org.bukkit.material.Chest chestData = (org.bukkit.material.Chest) chest.getData();
+                                // Replace the trapped chest with a waxed oxidized copper chest to differentiate center chests visually
+                                org.bukkit.block.data.type.Chest chestData = (org.bukkit.block.data.type.Chest) chest.getBlockData();
                                 BlockFace facing = chestData.getFacing();
-                                trappedChestBlock.setType(Material.CHEST);
-                                ((org.bukkit.material.Chest)trappedChestBlock.getState().getData()).setFacingDirection(facing);
+                                trappedChestBlock.setType(Material.WAXED_OXIDIZED_COPPER_CHEST);
+                                org.bukkit.block.data.type.Chest newChestData = (org.bukkit.block.data.type.Chest) trappedChestBlock.getBlockData();
+                                newChestData.setFacing(facing);
+                                trappedChestBlock.setBlockData(newChestData);
                                 // Add the chest as center
                                 addChest(chest, ChestPlacementType.CENTER);
                             }

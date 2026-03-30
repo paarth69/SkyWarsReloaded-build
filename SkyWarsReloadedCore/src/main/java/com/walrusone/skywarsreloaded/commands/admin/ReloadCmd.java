@@ -23,6 +23,18 @@ public class ReloadCmd extends com.walrusone.skywarsreloaded.commands.BaseCmd {
     }
 
     public boolean run(CommandSender sender, Player player, String[] args) {
+        // Check for optional argument to reload only chests
+        if (args.length >= 2 && args[1].equalsIgnoreCase("chest")) {
+            if (SkyWarsReloaded.getCM() != null) {
+                SkyWarsReloaded.getCM().reload();
+                sender.sendMessage("§aChest loot tables reloaded successfully!");
+            } else {
+                sender.sendMessage("§cChestManager is not initialized!");
+            }
+            return true;
+        }
+
+        // Full reload
         SkyWarsReloaded.get().onDisable();
         Bukkit.getPluginManager().callEvent(new SkyWarsReloadPreLoadEvent());
         SkyWarsReloaded.get().load();

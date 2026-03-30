@@ -153,7 +153,12 @@ public class MatchManager {
         if (gameMap.getTeamSize() == 1) {
             gameMap.setMatchState(MatchState.WAITINGSTART);
         } else {
-            gameMap.setMatchState(MatchState.WAITINGLOBBY);
+            // Skip waiting lobby for teams if configured
+            if (SkyWarsReloaded.getCfg().isSkipTeamWaitingLobby()) {
+                gameMap.setMatchState(MatchState.WAITINGSTART);
+            } else {
+                gameMap.setMatchState(MatchState.WAITINGLOBBY);
+            }
         }
         gameMap.update();
         gameMap.getGameBoard().updateScoreboard();
@@ -343,7 +348,8 @@ public class MatchManager {
             player.getInventory().setItem(SkyWarsReloaded.getCfg().getVotingPos(), timeItem);
         }
 
-        if (gameMap.getTeamSize() > 1 && gameMap.getMatchState() == MatchState.WAITINGLOBBY) {
+        // Only give team select item if in waiting lobby mode AND team selection is not disabled
+        if (gameMap.getTeamSize() > 1 && gameMap.getMatchState() == MatchState.WAITINGLOBBY && !SkyWarsReloaded.getCfg().isDisableTeamSelection()) {
             ItemStack teamItem = SkyWarsReloaded.getIM().getItem("teamSelectItem");
             player.getInventory().setItem(SkyWarsReloaded.getCfg().getTeamSelectPos(), teamItem);
         }
@@ -572,6 +578,15 @@ public class MatchManager {
                 if (gameMap.getMatchState() == MatchState.ENDING) {
                     this.cancel();
                 } else {
+                    // Check for max game time
+                    int maxGameTime = SkyWarsReloaded.getCfg().getMaxGameTime();
+                    if (maxGameTime > 0 && gameMap.getTimer() >= maxGameTime) {
+                        this.cancel();
+                        // End game without a winner
+                        MatchManager.this.endGameNoWinner(gameMap);
+                        return;
+                    }
+                    
                     for (MatchEvent event : gameMap.getEvents()) {
                         if (event.isEnabled() && event.willFire() && !event.hasFired()) {
                             if (event.getStartTime() <= gameMap.getTimer()) {
@@ -695,6 +710,9 @@ public class MatchManager {
                             pWinner.getInventory().clear();
                         }
                         Bukkit.getPluginManager().callEvent(new SkyWarsWinEvent(winnerData, gameMap));
+                        pWinner.setHealth(pWinner.getMaxHealth());
+                        pWinner.setFireTicks(0);
+                        pWinner.setFoodLevel(20);
                     }
 
                     if (SkyWarsReloaded.getCfg().enableWinMessage()) {
@@ -727,6 +745,33 @@ public class MatchManager {
                 }
             }
         }
+        this.endGame(gameMap);
+    }
+
+    /**
+     * End the game without a winner (e.g., when max game time is reached)
+     */
+    private void endGameNoWinner(final GameMap gameMap) {
+        if (debug) {
+            Util.get().logToFile(getDebugName(gameMap) + ChatColor.YELLOW + "SkyWars Match is ending due to time limit - No Winner");
+        }
+        
+        // Broadcast time limit message
+        for (Player player : gameMap.getAllPlayers()) {
+            player.sendMessage(new Messaging.MessageFormatter().format("game.time-limit-reached"));
+        }
+        
+        // Set match state to ending
+        if (gameMap.getMatchState() != MatchState.OFFLINE) {
+            gameMap.setMatchState(MatchState.ENDING);
+            gameMap.getGameBoard().updateScoreboard();
+            for (MatchEvent mEvent : gameMap.getEvents()) {
+                if (mEvent.isEnabled() && mEvent.hasFired()) {
+                    mEvent.endEvent(true);
+                }
+            }
+        }
+        
         this.endGame(gameMap);
     }
 

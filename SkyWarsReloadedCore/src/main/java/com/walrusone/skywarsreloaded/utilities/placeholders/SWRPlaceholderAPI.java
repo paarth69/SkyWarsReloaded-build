@@ -2,8 +2,11 @@ package com.walrusone.skywarsreloaded.utilities.placeholders;
 
 import com.walrusone.skywarsreloaded.SkyWarsReloaded;
 import com.walrusone.skywarsreloaded.enums.LeaderType;
+import com.walrusone.skywarsreloaded.enums.MatchState;
+import com.walrusone.skywarsreloaded.game.GameMap;
 import com.walrusone.skywarsreloaded.managers.Leaderboard;
 import com.walrusone.skywarsreloaded.managers.PlayerStat;
+import com.walrusone.skywarsreloaded.utilities.Messaging;
 import com.walrusone.skywarsreloaded.utilities.Util;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -20,7 +23,7 @@ public class SWRPlaceholderAPI extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        return "swr";
+        return "sw";
     }
 
     @Override
@@ -40,6 +43,56 @@ public class SWRPlaceholderAPI extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player p, String identifier) {
+        if (identifier == null) return "";
+        String lowerIdent = identifier.toLowerCase();
+
+        // Arena-specific placeholders (don't require player)
+        if (lowerIdent.startsWith("arena_status_")) {
+            String arenaName = identifier.substring(13); // Fixed length to avoid issues
+            GameMap map = findArena(arenaName);
+            if (map == null) return "ARENA_NOT_FOUND:" + arenaName;
+            return getStatusString(map);
+        }
+
+        if (lowerIdent.startsWith("arena_players_")) {
+            String arenaName = identifier.substring(14); // Fixed length to avoid issues
+            GameMap map = findArena(arenaName);
+            if (map == null) return "ARENA_NOT_FOUND:" + arenaName;
+            try {
+                return String.valueOf(map.getAlivePlayers().size());
+            } catch (Exception e) {
+                return "ERR_ALIVE";
+            }
+        }
+
+        if (lowerIdent.equalsIgnoreCase("playing_solo")) {
+            int count = 0;
+            try {
+                if (SkyWarsReloaded.getGameMapMgr() != null) {
+                    for (GameMap map : SkyWarsReloaded.getGameMapMgr().getMapsCopy()) {
+                        if (map.getTeamSize() == 1 && map.getMatchState() == MatchState.PLAYING) {
+                            count += map.getAlivePlayers().size();
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+            return String.valueOf(count);
+        }
+
+        if (lowerIdent.equalsIgnoreCase("playing_teams")) {
+            int count = 0;
+            try {
+                if (SkyWarsReloaded.getGameMapMgr() != null) {
+                    for (GameMap map : SkyWarsReloaded.getGameMapMgr().getMapsCopy()) {
+                        if (map.getTeamSize() > 1 && map.getMatchState() == MatchState.PLAYING) {
+                            count += map.getAlivePlayers().size();
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+            return String.valueOf(count);
+        }
+
         if (p == null) {
             return "";
         }
@@ -71,6 +124,63 @@ public class SWRPlaceholderAPI extends PlaceholderExpansion {
             return null;
         }
 
+    }
+
+    private String getStatusString(GameMap map) {
+        MatchState state = map.getMatchState();
+        Messaging.MessageFormatter formatter = new Messaging.MessageFormatter();
+        switch (state) {
+            case WAITINGLOBBY:
+            case WAITINGSTART:
+                if (map.getPlayerCount() >= map.getMinTeams() || map.getForceStart()) {
+                    return formatter.format("matchstate.starting");
+                } else {
+                    return formatter.format("matchstate.waiting");
+                }
+            case PLAYING:
+                return formatter.format("matchstate.playing");
+            case ENDING:
+                return formatter.format("matchstate.ending");
+            case OFFLINE:
+            default:
+                return formatter.format("matchstate.offline");
+        }
+    }
+
+    /**
+     * Finds an arena by internal name or display name
+     */
+    private GameMap findArena(String arenaName) {
+        if (arenaName == null || arenaName.isEmpty()) return null;
+        
+        // First try by internal name
+        GameMap map = SkyWarsReloaded.getGameMapMgr().getMap(arenaName);
+        if (map != null) return map;
+        
+        // Then try by display name
+        map = SkyWarsReloaded.getGameMapMgr().getMapByDisplayName(arenaName);
+        if (map != null) return map;
+        
+        // Try case-insensitive search on all maps
+        for (GameMap gMap : SkyWarsReloaded.getGameMapMgr().getMapsCopy()) {
+            if (gMap == null) continue;
+            // Check internal name
+            if (gMap.getName() != null && gMap.getName().equalsIgnoreCase(arenaName)) {
+                return gMap;
+            }
+            // Check display name with colors stripped
+            String displayName = gMap.getDisplayName();
+            if (displayName != null) {
+                String stripped = org.bukkit.ChatColor.stripColor(
+                    org.bukkit.ChatColor.translateAlternateColorCodes('&', displayName)
+                );
+                if (stripped.equalsIgnoreCase(arenaName)) {
+                    return gMap;
+                }
+            }
+        }
+        
+        return null;
     }
 
     public static String getLeaderBoardVariable(String var, @Nullable LeaderType type) {

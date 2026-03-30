@@ -37,6 +37,7 @@ public class MapCmdManager implements CommandExecutor, SWRCmdManagerAPI {
         mapcmds.add(new ChestTypeCmd("map"));
         mapcmds.add(new CheckChestTypeCmd("map"));
         mapcmds.add(new LegacyLoadCmd("map"));
+        mapcmds.add(new TestLootCmd("map"));
     }
 
     public static List<BaseCmd> getCommands() { return mcm.mapcmds; }

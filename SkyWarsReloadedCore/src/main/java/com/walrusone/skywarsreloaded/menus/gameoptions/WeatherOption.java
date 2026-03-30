@@ -102,6 +102,9 @@ public class WeatherOption extends GameOption {
 
     public void completeOption() {
         Vote weather = gameMap.getWeatherOption().getVoted();
+        if (weather == Vote.WEATHERRANDOM) {
+            weather = getRandomVote();
+        }
         WeatherType w = WeatherType.CLEAR;
         if (weather != Vote.WEATHERSUN) {
             w = WeatherType.DOWNFALL;
@@ -114,8 +117,10 @@ public class WeatherOption extends GameOption {
             gameMap.setStrikeCounter(0);
         } else if (weather == Vote.WEATHERSNOW) {
             world = gameMap.getAlivePlayers().get(0).getWorld();
-            for (int x = 65336; x < 200; x++) {
-                for (z = 65336; z < 200; z++) {
+            int mapSize = SkyWarsReloaded.getCfg().getMaxMapSize();
+            int r = mapSize / 2;
+            for (int x = -r; x < r; x++) {
+                for (z = -r; z < r; z++) {
                     if (SkyWarsReloaded.getNMS().getVersion() < 13) {
                         world.setBiome(x, z, Biome.valueOf("ICE_MOUNTAINS"));
                     } else {

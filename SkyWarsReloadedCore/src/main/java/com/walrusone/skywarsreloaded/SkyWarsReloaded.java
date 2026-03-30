@@ -81,6 +81,10 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
     private HologramsUtil hu;
     private boolean loaded;
     private BukkitTask specObserver;
+    
+    // Spectator items system
+    private com.walrusone.skywarsreloaded.managers.spectatorItems.SpectatorManager spectatorItemsManager;
+    private com.walrusone.skywarsreloaded.managers.spectatorItems.SpectateArenaMenu spectateArenaMenu;
 
     // Utils
     private GCNTUpdater updater;
@@ -178,33 +182,6 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
 
         servername = "none";
 
-        // Load config for 1.8
-        if (nmsHandler.getVersion() < 9) {
-            File config = new File(SkyWarsReloaded.get().getDataFolder(), "config.yml");
-            if (!config.exists()) {
-                SkyWarsReloaded.get().saveResource("config18.yml", false);
-                config = new File(SkyWarsReloaded.get().getDataFolder(), "config18.yml");
-                if (config.exists()) {
-                    boolean result = config.renameTo(new File(SkyWarsReloaded.get().getDataFolder(), "config.yml"));
-                    if (result) {
-                        getLogger().info("Loading 1.8 Configuration Files");
-                    }
-                }
-            }
-            // Load config for 1.12
-        } else if (nmsHandler.getVersion() < 13 && nmsHandler.getVersion() > 8) {
-            File config = new File(SkyWarsReloaded.get().getDataFolder(), "config.yml");
-            if (!config.exists()) {
-                SkyWarsReloaded.get().saveResource("config112.yml", false);
-                config = new File(SkyWarsReloaded.get().getDataFolder(), "config112.yml");
-                if (config.exists()) {
-                    boolean result = config.renameTo(new File(SkyWarsReloaded.get().getDataFolder(), "config.yml"));
-                    if (result) {
-                        getLogger().info("Loading 1.9 - 1.12 Configuration Files");
-                    }
-                }
-            }
-        }
         // Copy missing attributes
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -365,7 +342,26 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
             SWRServer.updateServerSigns();
 
         }
-        checkUpdates();
+        
+        // Spectator Items System
+        this.spectatorItemsManager = new com.walrusone.skywarsreloaded.managers.spectatorItems.SpectatorManager();
+        com.walrusone.skywarsreloaded.managers.spectatorItems.TeleporterMenu teleporterMenu = 
+            new com.walrusone.skywarsreloaded.managers.spectatorItems.TeleporterMenu(spectatorItemsManager);
+        this.spectateArenaMenu = 
+            new com.walrusone.skywarsreloaded.managers.spectatorItems.SpectateArenaMenu(spectatorItemsManager);
+        
+        this.getServer().getPluginManager().registerEvents(
+            new com.walrusone.skywarsreloaded.managers.spectatorItems.SpectatorProtectionListener(spectatorItemsManager, teleporterMenu), this);
+        this.getServer().getPluginManager().registerEvents(this.spectateArenaMenu, this);
+        this.getServer().getPluginManager().registerEvents(teleporterMenu, this);
+        
+        if (getCommand("swspectategui") != null) {
+            getCommand("swspectategui").setExecutor(this.spectateArenaMenu);
+        }
+        
+        spectatorItemsManager.startEnforcerTask();
+        getLogger().info("Spectator items system enabled.");
+        
         // TODO: SWR API - Not finished
         swrAPI = new SkywarsReloadedImpl();
     }
@@ -478,6 +474,16 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
         for (final PlayerStat fData : PlayerStat.getPlayers()) {
             DataStorage.get().saveStats(fData);
         }
+        
+        // Cleanup spectator items system
+        if (spectatorItemsManager != null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (spectatorItemsManager.isInSwSpec(p)) {
+                    spectatorItemsManager.exitSpectate(p, true);
+                }
+            }
+        }
+        
         this.gameMapManager = null;
     }
 
@@ -735,6 +741,14 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
         return this.playerManager;
     }
 
+    public com.walrusone.skywarsreloaded.managers.spectatorItems.SpectatorManager getSpectatorItemsManager() {
+        return this.spectatorItemsManager;
+    }
+
+    public com.walrusone.skywarsreloaded.managers.spectatorItems.SpectateArenaMenu getSpectateArenaMenu() {
+        return this.spectateArenaMenu;
+    }
+
     public MainCmdManager getMainCmdManager() {
         return this.mainCmdManager;
     }
@@ -773,28 +787,6 @@ public class SkyWarsReloaded extends JavaPlugin implements PluginMessageListener
 
     public boolean serverLoaded() {
         return loaded;
-    }
-
-    public void checkUpdates() {
-        this.updater = new GCNTUpdater();
-
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            updater.checkForUpdate();
-            if (updater.getUpdateStatus() == 1) {
-                Bukkit.getLogger().info("====================");
-                Bukkit.getLogger().info("SkyWarsReloaded Updater");
-                Bukkit.getLogger().info("");
-                Bukkit.getLogger().info("We found a newer version of SkyWarsReloaded!");
-                Bukkit.getLogger().info("");
-                Bukkit.getLogger().info("New version: " + updater.getLatestVersion());
-                Bukkit.getLogger().info("Your version: " + updater.getCurrentVersion());
-                Bukkit.getLogger().info("");
-                Bukkit.getLogger().info("You can download it here:");
-                Bukkit.getLogger().info(updater.getUpdateURL());
-                Bukkit.getLogger().info("----------------------------------");
-            }
-            // Once every hour
-        }, 0, 20 * 60 * 60);
     }
 
     public GCNTUpdater getUpdater() {

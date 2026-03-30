@@ -64,13 +64,7 @@ public class TauntOption extends PlayerOption {
         File tauntFile = new File(SkyWarsReloaded.get().getDataFolder(), "taunts.yml");
 
         if (!tauntFile.exists()) {
-            if (SkyWarsReloaded.getNMS().getVersion() < 9) {
-                saveTauntFile("taunts18.yml");
-            } else if (SkyWarsReloaded.getNMS().getVersion() < 13) {
-                saveTauntFile("taunts112.yml");
-            } else {
-                SkyWarsReloaded.get().saveResource("taunts.yml", false);
-            }
+            SkyWarsReloaded.get().saveResource("taunts.yml", false);
         }
 
         if (tauntFile.exists()) {

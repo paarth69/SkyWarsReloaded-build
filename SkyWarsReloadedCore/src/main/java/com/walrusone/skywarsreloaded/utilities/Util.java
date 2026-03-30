@@ -192,14 +192,15 @@ public class Util {
         final long startTime = System.currentTimeMillis();
         Random rand = new Random();
         if (SkyWarsReloaded.get().isEnabled()) {
+            final World world = player.getWorld();
             return new BukkitRunnable() {
                 public void run() {
-                    if (System.currentTimeMillis() >= startTime + length * 1000 || SkyWarsReloaded.get().getServer().getPlayer(player.getUniqueId()) == null) {
+                    if (System.currentTimeMillis() >= startTime + length * 1000 || SkyWarsReloaded.get().getServer().getPlayer(player.getUniqueId()) == null || !player.getWorld().equals(world)) {
                         this.cancel();
                     } else {
                         for (int i = 0; i < fireworksPer5Tick; ++i) {
                             final Location loc = player.getLocation();
-                            @SuppressWarnings({"unchecked", "rawtypes"}) final Firework firework = (Firework) player.getLocation().getWorld().spawn(loc, (Class) Firework.class);
+                            @SuppressWarnings({"unchecked", "rawtypes"}) final Firework firework = (Firework) loc.getWorld().spawn(loc, (Class) Firework.class);
                             final FireworkMeta fMeta = firework.getFireworkMeta();
                             FireworkEffect fe = FireworkEffect.builder().withColor(colors.get(rand.nextInt(17))).withColor(colors.get(rand.nextInt(17)))
                                     .withColor(colors.get(rand.nextInt(17))).with(type.get(rand.nextInt(5))).trail(rand.nextBoolean())

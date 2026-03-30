@@ -97,21 +97,30 @@ public class HealthOption extends GameOption {
 
     public void completeOption() {
         Vote health = gameMap.getHealthOption().getVoted();
+        if (health == Vote.HEALTHRANDOM) {
+            health = getRandomVote();
+        }
+        
         int h = 10;
         if (health == Vote.HEALTHFIVE) {
             h = 5;
+        } else if (health == Vote.HEALTHTEN) {
+            h = 10;
         } else if (health == Vote.HEALTHFIFTEEN) {
             h = 15;
         } else if (health == Vote.HEALTHTWENTY) {
             h = 20;
         }
+        
+        final int finalHealth = h * 2;
         for (Player player : gameMap.getAlivePlayers()) {
-            SkyWarsReloaded.getNMS().setMaxHealth(player, h * 2);
-            player.setHealth(h * 2);
+            SkyWarsReloaded.getNMS().setMaxHealth(player, finalHealth);
+            player.setHealth(finalHealth);
+            player.setHealthScale(finalHealth);
+            player.setHealthScaled(true);
         }
 
         if (SkyWarsReloaded.getCfg().isHealthVoteEnabled()  && gameMap.getTimer() < 5) {
-
             String subOptionName = health.name().toLowerCase().replace("health", "health-");
             String optionValue = SkyWarsReloaded.getMessaging().getMessage("items." + subOptionName);
 

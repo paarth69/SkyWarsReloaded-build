@@ -55,6 +55,7 @@ game:
   kitVotingEnabled: false
   spectateEnabled: true
   maxMapSize: 400
+  maxGameTime: 0 # Maximum game time in seconds. 0 = disabled. When reached, the game ends with no winner.
   tauntsEnabled: true
   modifierLevel:
     speed:
@@ -69,6 +70,12 @@ teams:
   standardTeamMaterialByte: 4
   useSeparateCages: true
   changeTablistNames: false
+  # Skip waiting lobby for teams mode - players spawn directly in cages
+  skipWaitingLobby: true
+  # Number of players to fill in each team before moving to the next one
+  fillSize: 2
+  # Disable manual team selection - teams are assigned automatically and randomly
+  disableTeamSelection: true
 chat:
   useTeamChat: true
   enableFormatter: true
@@ -88,7 +95,53 @@ holograms:
 chests:
   loadTrappedChestsAsCenter: false
   maxItemsChest: 26
-  maxItemsDoubleChest: 53 
+  maxItemsDoubleChest: 53
+# Custom chest types for the voting GUI.
+# Each entry defines a chest type that players can vote for.
+# - displayName: name shown in the GUI and messages (supports & color codes)
+# - material: the item material for the GUI icon
+# - slot: the slot in the chest voting GUI (0 to chestVoteMenuSize-1)
+# - chestFile: loot table name in chests/ folder (without extension). Empty = no items (scavenger-style)
+# - centerChestFile: loot table name for center chests (without extension)
+#
+# Loot tables are stored in: plugins/SkyWarsReloaded/chests/
+# Create your own .yml files following the category-based format. See CHEST_LOOT_SYSTEM.md for details.
+#
+# You can add as many chest types as you want. Each one gets its own Vote enum value.
+# To remove a chest type, simply delete its entry from this list.
+# When useCustomChestTypes is true, ONLY the types listed here appear in the voting GUI.
+# chestVoteMenuSize: size of the chest vote GUI (must be multiple of 9, max 54)
+  useCustomChestTypes: true
+  chestVoteRandomSlot: 9
+  chestVoteMenuSize: 36
+  customChestTypes:
+    basic:
+      displayName: '&bBasic'
+      material: STONE_SWORD
+      slot: 11
+      chestFile: basicchest
+      centerChestFile: basiccenterchest
+
+    normal:
+      displayName: '&bNormal'
+      material: IRON_SWORD
+      slot: 13
+      chestFile: normalchest
+      centerChestFile: normalcenterchest
+
+    op:
+      displayName: '&bOverpowered'
+      material: DIAMOND_SWORD
+      slot: 15
+      chestFile: opchest
+      centerChestFile: opcenterchest
+
+    scavenger:
+      displayName: '&bScavenger'
+      material: WOODEN_HOE
+      slot: 17
+      chestFile: ''
+      centerChestFile: ''
 kit:
   menuSize: 45
   randPos: 0
@@ -259,3 +312,16 @@ disable-commands-spectate:
   - r
   - sw quit
   enabled: true
+
+# Spectator Items System Configuration
+spectator-menu-title: "&3&lSPECTATE"
+spectator-arena-item-name: "&f{display-name}"
+spectator-arena-item-lore:
+  - "&7Players: &f{players}"
+  - "&eClick to spectate!"
+spectator-changespeed-types:
+  - "&fNormal:1"
+  - "&bFast:2"
+  - "&3Faster:3"
+spectator-leave-commands:
+  - "spawn"

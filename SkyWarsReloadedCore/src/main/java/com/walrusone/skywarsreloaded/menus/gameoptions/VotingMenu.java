@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class VotingMenu {
 
@@ -68,14 +69,24 @@ public class VotingMenu {
                     SkyWarsReloaded.getIC().show(player, gMap.getChestOption().getKey());
 
                     Vote vote = gMap.getChestOption().getVote(gMap.getPlayerCard(player));
-                    if (vote == Vote.CHESTBASIC)
-                        Util.get().glowItem(player.getOpenInventory().getTopInventory(),11);
-                    else if (vote == Vote.CHESTNORMAL)
-                        Util.get().glowItem(player.getOpenInventory().getTopInventory(),13);
-                    else if (vote == Vote.CHESTOP)
-                        Util.get().glowItem(player.getOpenInventory().getTopInventory(),15);
-                    else if (vote == Vote.CHESTSCAVENGER)
-                        Util.get().glowItem(player.getOpenInventory().getTopInventory(),17);
+                    ChestOption chestOpt = (ChestOption) gMap.getChestOption();
+                    if (chestOpt.isUseCustom()) {
+                        // Dynamic glow for custom chest types
+                        Map<Vote, Integer> voteToSlot = chestOpt.getVoteToSlot();
+                        if (vote != null && voteToSlot.containsKey(vote)) {
+                            Util.get().glowItem(player.getOpenInventory().getTopInventory(), voteToSlot.get(vote));
+                        }
+                    } else {
+                        // Legacy hardcoded glow
+                        if (vote == Vote.CHESTBASIC)
+                            Util.get().glowItem(player.getOpenInventory().getTopInventory(), 11);
+                        else if (vote == Vote.CHESTNORMAL)
+                            Util.get().glowItem(player.getOpenInventory().getTopInventory(), 13);
+                        else if (vote == Vote.CHESTOP)
+                            Util.get().glowItem(player.getOpenInventory().getTopInventory(), 15);
+                        else if (vote == Vote.CHESTSCAVENGER)
+                            Util.get().glowItem(player.getOpenInventory().getTopInventory(), 17);
+                    }
                     Util.get().playSound(player, player.getLocation(), SkyWarsReloaded.getCfg().getOpenChestMenuSound(), 1, 1);
                 } else if (name.equalsIgnoreCase(new Messaging.MessageFormatter().format("items.health-item"))) {
                     SkyWarsReloaded.getIC().show(player, gMap.getHealthOption().getKey());

@@ -41,6 +41,7 @@ public class ProjectilesOnlyEvent
             subtitle = fc.getString("events." + eventName + ".subtitle");
             startMessage = fc.getString("events." + eventName + ".startMessage");
             endMessage = fc.getString("events." + eventName + ".endMessage");
+            maxRepeat = fc.getInt("events." + eventName + ".max-repeat", -1);
             announceEvent = fc.getBoolean("events." + eventName + ".announceTimer");
             repeatable = fc.getBoolean("events." + eventName + ".repeatable");
         }
@@ -72,7 +73,7 @@ public class ProjectilesOnlyEvent
             if (gMap.getMatchState() == MatchState.PLAYING) {
                 MatchManager.get().message(gMap, ChatColor.translateAlternateColorCodes('&', endMessage));
             }
-            if ((repeatable) || (force)) {
+            if ((repeatable && (maxRepeat == -1 || timesFired < maxRepeat)) || (force)) {
                 resetStartTime();
                 startTime += gMap.getTimer();
                 fired = false;
@@ -95,6 +96,7 @@ public class ProjectilesOnlyEvent
             fc.set("events." + eventName + ".minStart", min);
             fc.set("events." + eventName + ".maxStart", (max));
             fc.set("events." + eventName + ".length", (length));
+            fc.set("events." + eventName + ".max-repeat", (maxRepeat));
             fc.set("events." + eventName + ".chance", (chance));
             fc.set("events." + eventName + ".title", title);
             fc.set("events." + eventName + ".subtitle", subtitle);

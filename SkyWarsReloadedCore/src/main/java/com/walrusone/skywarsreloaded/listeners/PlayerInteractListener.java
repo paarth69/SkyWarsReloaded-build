@@ -369,8 +369,6 @@ public class PlayerInteractListener implements Listener {
                     }
                 }
             }
-        } else if (inView.getTitle().contains("chest.yml")) {
-            SkyWarsReloaded.getCM().save(inView.getTitle());
         }
 
     }
@@ -426,13 +424,13 @@ public class PlayerInteractListener implements Listener {
 
         GameMap playerPlayingMap = MatchManager.get().getPlayerMap(player);
         if (playerPlayingMap == null) {
-            if (e.getBlock().getType().equals(Material.CHEST) || e.getBlock().getType().equals(Material.TRAPPED_CHEST) || e.getBlock().getType().equals(Material.DIAMOND_BLOCK) || e.getBlock().getType().equals(Material.EMERALD_BLOCK)) {
+            if (e.getBlock().getType().equals(Material.CHEST) || e.getBlock().getType().equals(Material.TRAPPED_CHEST) || e.getBlock().getType().equals(Material.WAXED_OXIDIZED_COPPER_CHEST) || e.getBlock().getType().equals(Material.DIAMOND_BLOCK) || e.getBlock().getType().equals(Material.EMERALD_BLOCK)) {
                 GameMap map = SkyWarsReloaded.getGameMapMgr().getMap(player.getWorld().getName());
                 if (map == null) {
                     return;
                 }
                 if (map.isEditing()) {
-                    if (e.getBlock().getType().equals(Material.CHEST) || e.getBlock().getType().equals(Material.TRAPPED_CHEST)) {
+                    if (e.getBlock().getType().equals(Material.CHEST) || e.getBlock().getType().equals(Material.TRAPPED_CHEST) || e.getBlock().getType().equals(Material.WAXED_OXIDIZED_COPPER_CHEST)) {
                         Chest chest = (Chest) e.getBlock().getState();
 
                         // Remove from map

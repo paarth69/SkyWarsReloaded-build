@@ -1,0 +1,96 @@
+# SkyWarsReloaded - OP Chest Loot Table
+# Overpowered loot for intense gameplay
+
+categories:
+  # OP category - powerful items
+  op:
+    chance: 50
+    amount: 8-12
+    items:
+      food:
+        percentage: 15
+        loot:
+          - golden_apple,60,2-4
+          - enchanted_golden_apple,15,1
+          - cooked_beef,50,4-8
+      weapons:
+        percentage: 35
+        loot:
+          - diamond_sword,50,1
+          - diamond_sword,30,1,enchants:sharpness-2
+          - bow,55,1,enchants:power-2|punch-1
+          - arrow,65,24-48
+          - diamond_axe,35,1,enchants:sharpness-1
+      armor:
+        percentage: 35
+        loot:
+          - diamond_helmet,55,1
+          - diamond_chestplate,50,1
+          - diamond_leggings,50,1
+          - diamond_boots,55,1
+          - diamond_helmet,30,1,enchants:protection-2
+          - diamond_chestplate,25,1,enchants:protection-2
+      special:
+        percentage: 15
+        loot:
+          - ender_pearl,50,2-4
+          - tnt,45,3-6
+          - obsidian,35,4-8
+
+  # Ultra OP category - extremely powerful
+  ultra:
+    chance: 30
+    amount: 6-10
+    items:
+      food:
+        percentage: 10
+        loot:
+          - golden_apple,65,3-5
+          - enchanted_golden_apple,25,1-2
+      weapons:
+        percentage: 40
+        loot:
+          - diamond_sword,55,1,enchants:sharpness-3
+          - diamond_sword,40,1,enchants:sharpness-2|fire_aspect-1
+          - bow,50,1,enchants:power-3|infinity-1
+          - arrow,60,32-64
+      armor:
+        percentage: 40
+        loot:
+          - diamond_helmet,50,1,enchants:protection-3
+          - diamond_chestplate,45,1,enchants:protection-3
+          - diamond_leggings,45,1,enchants:protection-3
+          - diamond_boots,50,1,enchants:protection-3|feather_falling-2
+      special:
+        percentage: 10
+        loot:
+          - ender_pearl,55,3-5
+          - tnt,50,4-8
+
+  # Legendary category - godlike items
+  legendary:
+    chance: 20
+    amount: 5-8
+    items:
+      food:
+        percentage: 10
+        loot:
+          - enchanted_golden_apple,40,1-2
+          - golden_apple,55,4-6
+      weapons:
+        percentage: 45
+        loot:
+          - diamond_sword,50,1,enchants:sharpness-4|fire_aspect-2
+          - diamond_sword,40,1,enchants:sharpness-5
+          - bow,50,1,enchants:power-4|punch-2|infinity-1
+      armor:
+        percentage: 40
+        loot:
+          - diamond_helmet,50,1,enchants:protection-4
+          - diamond_chestplate,45,1,enchants:protection-4
+          - diamond_leggings,45,1,enchants:protection-4
+          - diamond_boots,50,1,enchants:protection-4|feather_falling-4
+      special:
+        percentage: 5
+        loot:
+          - ender_pearl,60,4-6

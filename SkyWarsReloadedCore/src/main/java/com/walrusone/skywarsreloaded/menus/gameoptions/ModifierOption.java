@@ -96,6 +96,9 @@ public class ModifierOption extends GameOption {
 
     public void completeOption() {
         Vote modifier = gameMap.getModifierOption().getVoted();
+        if (modifier == Vote.MODIFIERRANDOM) {
+            modifier = getRandomVote();
+        }
         if (modifier == Vote.MODIFIERSPEED) {
             PotionEffect effect = new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, SkyWarsReloaded.getCfg().getSpeed(), true, false);
             gameMap.getAlivePlayers().forEach(player -> player.addPotionEffect(effect));

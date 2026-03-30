@@ -180,6 +180,7 @@ game:
   broadcast-win: '&a{player1} won a SkyWars Match on the map {map}'
   won: '&aYou won a SkyWars game on the map {map}'
   lost: '&cYou lost a SkyWars game on the map {map}'
+  time-limit-reached: '&c&lTIME''S UP! &7The game has ended with no winner.'
   left-the-game: '&c{player} left the game!'
   waitstart-left-the-game: '&7[&c-&7] &b{player} &7({playercount}/{maxplayers})'
   waitstart-joined-the-game: '&7[&a+&7] &b{player} &7({playercount}/{maxplayers})'
@@ -581,3 +582,9 @@ helpList:
     info: '&a/swparty info &e- Displays your current parties info'
 bungee:
   motd: '{matchstate}:{playercount}:{maxplayers}:{displayname}'
+matchstate:
+  waiting: '&aWaiting'
+  starting: '&6Starting'
+  playing: '&cIn Game'
+  ending: '&4Ending'
+  offline: '&8Offline'

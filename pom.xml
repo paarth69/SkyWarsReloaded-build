@@ -13,8 +13,8 @@
         <revision>5.6.33</revision>
 
         <bukkit.version>1.12.2</bukkit.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -22,96 +22,9 @@
         <module>SkyWarsReloadedCore</module>
         <module>slime-asp</module>
         <module>slime-legacy</module>
-        <module>v1_8_R3</module>
-        <module>v1_9_R1</module>
-        <module>v1_9_R2</module>
-        <module>v1_10_R1</module>
-        <module>v1_11_R1</module>
-        <module>v1_12_R1</module>
-        <module>v1_13_R2</module>
-        <module>v1_14_R1</module>
-        <module>v1_15_R1</module>
-        <module>v1_16_R1</module>
-        <module>v1_16_R2</module>
-        <module>v1_16_R3</module>
-        <module>v1_17_R1</module>
-        <module>v1_18_R2</module>
-        <module>v1_19_R1</module>
-        <module>v1_20_R1</module>
         <module>v1_21_R1</module>
         <module>skywars-assembly</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>java8</id>
-            <properties>
-                <maven.compiler.source>1.8</maven.compiler.source>
-                <maven.compiler.target>1.8</maven.compiler.target>
-            </properties>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <modules>
-                <module>SkyWarsReloadedCore</module>
-                <module>v1_8_R3</module>
-                <module>v1_9_R1</module>
-                <module>v1_9_R2</module>
-                <module>v1_10_R1</module>
-                <module>v1_11_R1</module>
-                <module>v1_12_R1</module>
-                <module>v1_13_R2</module>
-                <module>v1_14_R1</module>
-                <module>v1_15_R1</module>
-                <module>v1_16_R1</module>
-                <module>v1_16_R2</module>
-                <module>v1_16_R3</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>java16</id>
-            <properties>
-                <maven.compiler.source>16</maven.compiler.source>
-                <maven.compiler.target>16</maven.compiler.target>
-            </properties>
-            <activation>
-                <jdk>16</jdk>
-            </activation>
-            <modules>
-                <module>v1_17_R1</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>java17</id>
-            <properties>
-                <maven.compiler.source>17</maven.compiler.source>
-                <maven.compiler.target>17</maven.compiler.target>
-            </properties>
-            <activation>
-                <jdk>17</jdk>
-            </activation>
-            <modules>
-                <module>slime-asp</module>
-                <module>slime-legacy</module>
-                <module>v1_18_R2</module>
-                <module>v1_19_R1</module>
-                <module>v1_20_R1</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>java21</id>
-            <properties>
-                <maven.compiler.source>21</maven.compiler.source>
-                <maven.compiler.target>21</maven.compiler.target>
-            </properties>
-            <activation>
-                <jdk>21</jdk>
-            </activation>
-            <modules>
-                <module>v1_21_R1</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <repositories>
         <repository>

@@ -98,6 +98,9 @@ public class TimeOption extends GameOption {
 
     public void completeOption() {
         Vote time = gameMap.getTimeOption().getVoted();
+        if (time == Vote.TIMERANDOM) {
+            time = getRandomVote();
+        }
         int t = 0;
         if (time == Vote.TIMENOON) {
             t = 6000;

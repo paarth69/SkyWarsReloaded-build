@@ -36,8 +36,9 @@ public class ChestRefillEvent extends MatchEvent {
             subtitle = fc.getString("events." + eventName + ".subtitle");
             startMessage = fc.getString("events." + eventName + ".startMessage");
             endMessage = fc.getString("events." + eventName + ".endMessage");
+            maxRepeat = fc.getInt("events." + eventName + ".max-repeat", 2);
             announceEvent = fc.getBoolean("events." + eventName + ".announceTimer");
-            repeatable = fc.getBoolean("events." + eventName + ".repeatable");
+            repeatable = fc.getBoolean("events." + eventName + ".repeatable", true);
         }
     }
 
@@ -51,8 +52,7 @@ public class ChestRefillEvent extends MatchEvent {
     }
 
     public void endEvent(boolean force) {
-        if ((fired) && (
-                (repeatable) || (force))) {
+        if (fired && ((repeatable && (maxRepeat == -1 || timesFired < maxRepeat)) || force)) {
             resetStartTime();
             startTime += gMap.getTimer();
             fired = false;
@@ -75,6 +75,7 @@ public class ChestRefillEvent extends MatchEvent {
             fc.set("events." + eventName + ".minStart", (min));
             fc.set("events." + eventName + ".maxStart", (max));
             fc.set("events." + eventName + ".length", (length));
+            fc.set("events." + eventName + ".max-repeat", (maxRepeat));
             fc.set("events." + eventName + ".chance", (chance));
             fc.set("events." + eventName + ".title", title);
             fc.set("events." + eventName + ".subtitle", subtitle);

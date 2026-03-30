@@ -26,6 +26,7 @@ events:
     endMessage: "&cNo More Hearts &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   HealthDecayEvent:
     enabled: false
     minStart: 300
@@ -38,6 +39,7 @@ events:
     endMessage: "&cHealth Decay &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   EnderDragonEvent:
     enabled: false
     minStart: 300
@@ -51,6 +53,7 @@ events:
     endMessage: "&cEnderDragon &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   WitherEvent:
     enabled: false
     minStart: 300
@@ -63,6 +66,7 @@ events:
     endMessage: "&cWither &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   MobSpawnEvent:
     enabled: false
     minStart: 300
@@ -75,6 +79,7 @@ events:
     endMessage: "&cMob Rush &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
     minMobsPerPlayer: 5
     maxMobsPerPlayer: 5
     mobs:
@@ -94,6 +99,7 @@ events:
     endMessage: '&cCrate drop &bevent has ended!'
     announceTimer: false
     repeatable: false
+    max-repeat: -1
     maxItemsPerCrate: 5
     maxNumOfCrates: 3
   ChestRefillEvent:
@@ -107,7 +113,8 @@ events:
     startMessage: "&cChest refill &bevent has begun!"
     endMessage: "&cChest refill &bevent has ended!"
     announceTimer: false
-    repeatable: false
+    repeatable: true
+    max-repeat: 2
   DeathMatchEvent:
     enabled: false
     minStart: 900
@@ -120,6 +127,7 @@ events:
     endMessage: "&cFIGHT"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   ArrowRainEvent:
     enabled: false
     minStart: 300
@@ -132,6 +140,7 @@ events:
     endMessage: "&cArrow Rain &bevent has ended!"
     announceTimer: false
     repeatable: true
+    max-repeat: -1
     spawnPer2Tick: 1
   AnvilRainEvent:
     enabled: false
@@ -145,6 +154,7 @@ events:
     endMessage: "&cAnvil Rain &bevent has ended!"
     announceTimer: false
     repeatable: true
+    max-repeat: -1
     spawnPer5Tick: 2
   ShrinkingBorderEvent:
     enabled: false
@@ -158,6 +168,7 @@ events:
     endMessage: "&cShrinking Border &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
     startingBorderSize: 300
     shrinkRepeatDelay: 1
   ProjectilesOnlyEvent:
@@ -172,6 +183,7 @@ events:
     endMessage: "&cProjectiles Only &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   ProjectileSpleefEvent:
     enabled: false
     minStart: 300
@@ -184,6 +196,7 @@ events:
     endMessage: "&cProjectile Spleef &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
     eggsAddedToInventory: 64
   DoubleDamageEvent:
     enabled: false
@@ -197,6 +210,7 @@ events:
     endMessage: "&cDouble Damage &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
   GhastEvent:
     enabled: false
     minStart: 300
@@ -209,6 +223,7 @@ events:
     endMessage: "&cGhasts Everywhere &bevent has ended!"
     announceTimer: false
     repeatable: false
+    max-repeat: -1
 spectateSpawn:
 spawns:
 signs:

@@ -19,11 +19,16 @@ public class SWSpectateCmd extends BaseCmd {
         this.forcePlayer = true;
         this.cmdName = "spectate";
         this.alias = new String[] {"spec"};
-        this.argLength = 2;
+        this.argLength = 1;
     }
 
 
     public boolean run(CommandSender sender, Player player, String[] args) {
+        if (args.length == 1) {
+            SkyWarsReloaded.get().getSpectateArenaMenu().onCommand(sender, null, "swspectategui", new String[0]);
+            return true;
+        }
+
         GameMap gMap = SkyWarsReloaded.getGameMapMgr().getMap(ChatColor.stripColor(args[1]));
         if (gMap != null) {
             sendSpectator(gMap, player);

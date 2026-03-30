@@ -123,6 +123,14 @@ public class TeamSelectionMenu {
                 return;
             }
 
+            // Block team selection when disabled in config
+            if (SkyWarsReloaded.getCfg().isDisableTeamSelection()) {
+                player.sendMessage(ChatColor.RED + "Team selection is disabled. Teams are assigned automatically.");
+                Util.get().playSound(player, player.getLocation(), SkyWarsReloaded.getCfg().getErrorSound(), 1, 1);
+                player.closeInventory();
+                return;
+            }
+
             if (gMap.getMatchState() != MatchState.WAITINGSTART && gMap.getMatchState() != MatchState.WAITINGLOBBY) {
                 Util.get().playSound(player, player.getLocation(), SkyWarsReloaded.getCfg().getErrorSound(), 1, 1);
                 if (!SkyWarsReloaded.getIC().hasViewers("jointeammenu")) {

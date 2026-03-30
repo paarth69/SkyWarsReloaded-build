@@ -17,11 +17,18 @@
         <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.21.9-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -29,11 +36,6 @@
             <artifactId>SkyWarsReloadedCore</artifactId>
             <version>${revision}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.walrusone</groupId>
-            <artifactId>v1_20_R1</artifactId>
-            <version>${revision}</version>
         </dependency>
     </dependencies>
 

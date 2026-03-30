@@ -47,6 +47,7 @@ public class CrateDropEvent extends MatchEvent {
             subtitle = fc.getString("events." + eventName + ".subtitle");
             startMessage = fc.getString("events." + eventName + ".startMessage");
             endMessage = fc.getString("events." + eventName + ".endMessage");
+            maxRepeat = fc.getInt("events." + eventName + ".max-repeat", -1);
             announceEvent = fc.getBoolean("events." + eventName + ".announceTimer");
             repeatable = fc.getBoolean("events." + eventName + ".repeatable");
             maxItemsPerCrate = fc.getInt("events." + eventName + ".maxItemsPerCrate");
@@ -90,7 +91,7 @@ public class CrateDropEvent extends MatchEvent {
                 MatchManager.get().message(gMap, org.bukkit.ChatColor.translateAlternateColorCodes('&', endMessage));
             }
             gMap.removeCrates();
-            if ((repeatable) || (force)) {
+            if ((repeatable && (maxRepeat == -1 || timesFired < maxRepeat)) || (force)) {
                 resetStartTime();
                 startTime += gMap.getTimer();
                 fired = false;
@@ -107,7 +108,7 @@ public class CrateDropEvent extends MatchEvent {
             Location loc2 = new Location(world, ((TeamCard) gMap.getTeamCards().get(0)).getSpawns().get(0).getX(), ((TeamCard) gMap.getTeamCards().get(0)).getSpawns().get(0).getY(), ((TeamCard) gMap.getTeamCards().get(0)).getSpawns().get(0).getZ());
             int distance = (int) Math.hypot(loc.getX() - loc2.getX(), loc.getZ() - loc2.getZ());
             int y = loc2.getBlockY();
-            Location spawn = new Location(world, loc.getBlockX() + Util.get().getRandomNum(-distance, distance), 0.0D, loc.getBlockZ() + Util.get().getRandomNum(-distance, distance));
+            Location spawn = new Location(world, loc.getBlockX() + Util.get().getRandomNum(-distance, distance), 0.0D, loc.getBlockX() + Util.get().getRandomNum(-distance, distance));
             Block block = world.getHighestBlockAt(spawn);
             if ((block != null) && (!block.getType().equals(Material.AIR))) {
                 spawn = block.getLocation();
@@ -137,6 +138,7 @@ public class CrateDropEvent extends MatchEvent {
             fc.set("events." + eventName + ".minStart", (min));
             fc.set("events." + eventName + ".maxStart", (max));
             fc.set("events." + eventName + ".length", (length));
+            fc.set("events." + eventName + ".max-repeat", (maxRepeat));
             fc.set("events." + eventName + ".chance", (chance));
             fc.set("events." + eventName + ".title", title);
             fc.set("events." + eventName + ".subtitle", subtitle);

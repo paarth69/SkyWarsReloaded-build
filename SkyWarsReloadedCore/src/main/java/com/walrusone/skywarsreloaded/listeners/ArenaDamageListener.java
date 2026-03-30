@@ -42,7 +42,11 @@ public class ArenaDamageListener implements org.bukkit.event.Listener {
         if ((event.getEntity() instanceof Player)) {
             Player target = (Player) event.getEntity();
             GameMap gameMap = MatchManager.get().getPlayerMap(target);
-            if ((gameMap != null) && (!gameMap.getSpectators().contains(target.getUniqueId()))) {
+            if (gameMap != null) {
+                if (SkyWarsReloaded.get().getSpectatorItemsManager().isInSwSpec(target) || gameMap.getSpectators().contains(target.getUniqueId())) {
+                    event.setCancelled(true);
+                    return;
+                }
                 if ((gameMap.getMatchState() == MatchState.ENDING || gameMap.getMatchState() == MatchState.WAITINGSTART || gameMap.getMatchState() == MatchState.WAITINGLOBBY) ||
                         gameMap.isDisableDamage()) {
                     event.setCancelled(true);
@@ -113,6 +117,10 @@ public class ArenaDamageListener implements org.bukkit.event.Listener {
             Player player = (Player) event.getEntity();
             GameMap gameMap = MatchManager.get().getPlayerMap(player);
             if (gameMap != null) {
+                if (SkyWarsReloaded.get().getSpectatorItemsManager().isInSwSpec(player) || gameMap.getSpectators().contains(player.getUniqueId())) {
+                    event.setCancelled(true);
+                    return;
+                }
                 if (gameMap.getMatchState() == MatchState.ENDING || gameMap.getMatchState() == MatchState.WAITINGSTART || gameMap.getMatchState() == MatchState.WAITINGLOBBY) {
                     event.setCancelled(true);
                 } else if (!gameMap.getAllowFallDamage() && event.getCause() == EntityDamageEvent.DamageCause.FALL) {

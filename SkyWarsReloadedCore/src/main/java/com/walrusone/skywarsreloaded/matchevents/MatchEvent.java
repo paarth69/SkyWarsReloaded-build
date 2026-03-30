@@ -20,10 +20,12 @@ public abstract class MatchEvent {
     protected Integer minOverride;
     protected Integer maxOverride;
     protected int length;
-    protected int startTime;
     protected int chance;
+    protected int startTime;
     protected boolean fired;
     protected boolean repeatable;
+    protected int maxRepeat;
+    protected int timesFired;
     protected String title;
     protected String subtitle;
     protected String startMessage;
@@ -47,6 +49,11 @@ public abstract class MatchEvent {
             return;
         }
 
+        if (maxRepeat != -1 && timesFired >= maxRepeat) {
+            return;
+        }
+
+        timesFired++;
         onDoEvent();
     }
     
@@ -58,6 +65,7 @@ public abstract class MatchEvent {
 
     public void reset() {
         fired = false;
+        timesFired = 0;
         fireThisMatch();
         resetStartTime();
     }
@@ -286,5 +294,21 @@ public abstract class MatchEvent {
 
     public void setMaxOverride(@Nullable Integer max) {
         maxOverride = max;
+    }
+
+    public int getMaxRepeat() {
+        return maxRepeat;
+    }
+
+    public void setMaxRepeat(int maxRepeat) {
+        this.maxRepeat = maxRepeat;
+    }
+
+    public int getTimesFired() {
+        return timesFired;
+    }
+
+    public void setTimesFired(int timesFired) {
+        this.timesFired = timesFired;
     }
 }

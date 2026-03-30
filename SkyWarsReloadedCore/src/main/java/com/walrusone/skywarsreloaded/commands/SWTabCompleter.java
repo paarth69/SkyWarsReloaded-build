@@ -2,7 +2,6 @@ package com.walrusone.skywarsreloaded.commands;
 
 import com.google.common.collect.Lists;
 import com.walrusone.skywarsreloaded.SkyWarsReloaded;
-import com.walrusone.skywarsreloaded.enums.ChestType;
 import com.walrusone.skywarsreloaded.enums.LeaderType;
 import com.walrusone.skywarsreloaded.game.GameMap;
 import com.walrusone.skywarsreloaded.managers.GameMapManager;
@@ -45,6 +44,10 @@ public class SWTabCompleter implements TabCompleter {
                     }
                 } else if (args[0].equalsIgnoreCase("spawn") && Util.get().hasPerm("map", commandSender, "spawn")) {
                     possibilities = Lists.newArrayList("player", "spec", "look", "lobby", "deathmatch");
+                } else if ((args[0].equalsIgnoreCase("testloot") || args[0].equalsIgnoreCase("tl")) && Util.get().hasPerm("map", commandSender, "testloot")) {
+                    if (SkyWarsReloaded.getCM() != null) {
+                        possibilities.addAll(SkyWarsReloaded.getCM().getAvailableLootTables());
+                    }
                 }
             }
         }
@@ -82,11 +85,7 @@ public class SWTabCompleter implements TabCompleter {
                     }
                 }
             } else if (args.length == 2) {
-                if ((args[0].equalsIgnoreCase("chestadd") || args[0].equalsIgnoreCase("chestedit")) && Util.get().hasPerm("sw", commandSender, args[0].toLowerCase())) {
-                    for (ChestType ct : ChestType.values()) {
-                        possibilities.add(ct.toString().toLowerCase());
-                    }
-                } else if ((args[0].equalsIgnoreCase("stats") || args[0].equalsIgnoreCase("stat") ||
+                if ((args[0].equalsIgnoreCase("stats") || args[0].equalsIgnoreCase("stat") ||
                         args[0].equalsIgnoreCase("clearstats")) && Util.get().hasPerm("sw", commandSender, args[0].toLowerCase())) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         possibilities.add(p.getName());
@@ -95,11 +94,11 @@ public class SWTabCompleter implements TabCompleter {
                     for (String leaderType : SkyWarsReloaded.get().getLeaderTypes()) {
                         possibilities.add(leaderType.toLowerCase());
                     }
+                } else if ((args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r")) && Util.get().hasPerm("sw", commandSender, "reload")) {
+                    possibilities.add("chest");
                 }
             } else if (args.length == 3) {
-                if (args[0].equalsIgnoreCase("chestadd") && Util.get().hasPerm("sw", commandSender, "chestadd")) {
-                    possibilities = Lists.newArrayList("hand", "inv");
-                } else if (args[0].equalsIgnoreCase("stat") && Util.get().hasPerm("sw", commandSender, "stat")) {
+                if (args[0].equalsIgnoreCase("stat") && Util.get().hasPerm("sw", commandSender, "stat")) {
                     possibilities = Lists.newArrayList("wins", "losses", "kills", "deaths", "xp", "pareffect", "proeffect", "glasscolor", "killsound", "winsound");
                 } else if (args[0].equalsIgnoreCase("hologram") && Util.get().hasPerm("sw", commandSender, "hologram")) {
                     LeaderType lt = LeaderType.matchType(args[1].toUpperCase());

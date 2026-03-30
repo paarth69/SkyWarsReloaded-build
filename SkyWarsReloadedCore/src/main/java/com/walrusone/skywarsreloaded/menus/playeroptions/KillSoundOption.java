@@ -40,29 +40,12 @@ public class KillSoundOption extends PlayerOption {
         this.menuSize = menuSize;
     }
 
-    private static void saveKillFile(String filename) {
-        SkyWarsReloaded.get().saveResource(filename, false);
-        File sf = new File(SkyWarsReloaded.get().getDataFolder(), filename);
-        if (sf.exists()) {
-            boolean result = sf.renameTo(new File(SkyWarsReloaded.get().getDataFolder(), "killsounds.yml"));
-            if (!result) {
-                SkyWarsReloaded.get().getLogger().info("Failed to rename Killsounds File");
-            }
-        }
-    }
-
     public static void loadPlayerOptions() {
         playerOptions.clear();
         File soundFile = new File(SkyWarsReloaded.get().getDataFolder(), "killsounds.yml");
 
         if (!soundFile.exists()) {
-            if (SkyWarsReloaded.getNMS().getVersion() < 9) {
-                saveKillFile("killsounds18.yml");
-            } else if (SkyWarsReloaded.getNMS().getVersion() < 13 && SkyWarsReloaded.getNMS().getVersion() > 8) {
-                saveKillFile("killsounds112.yml");
-            } else {
-                SkyWarsReloaded.get().saveResource("killsounds.yml", false);
-            }
+            SkyWarsReloaded.get().saveResource("killsounds.yml", false);
         }
 
         if (soundFile.exists()) {

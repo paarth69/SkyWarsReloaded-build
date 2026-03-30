@@ -46,6 +46,7 @@ public class ProjectileSpleefEvent extends MatchEvent {
             this.subtitle = fc.getString("events." + eventName + ".subtitle");
             this.startMessage = fc.getString("events." + eventName + ".startMessage");
             this.endMessage = fc.getString("events." + eventName + ".endMessage");
+            this.maxRepeat = fc.getInt("events." + eventName + ".max-repeat", -1);
             this.announceEvent = fc.getBoolean("events." + eventName + ".announceTimer");
             this.repeatable = fc.getBoolean("events." + eventName + ".repeatable");
             this.eggsToAdd = fc.getInt("events." + eventName + ".eggsAddedToInventory");
@@ -89,7 +90,7 @@ public class ProjectileSpleefEvent extends MatchEvent {
             if (gMap.getMatchState() == MatchState.PLAYING) {
                 MatchManager.get().message(gMap, ChatColor.translateAlternateColorCodes('&', endMessage));
             }
-            if (repeatable || force) {
+            if ((repeatable && (maxRepeat == -1 || timesFired < maxRepeat)) || force) {
                 resetStartTime();
                 this.startTime = this.startTime + gMap.getTimer();
                 this.fired = false;
@@ -113,6 +114,7 @@ public class ProjectileSpleefEvent extends MatchEvent {
             fc.set("events." + eventName + ".minStart", this.min);
             fc.set("events." + eventName + ".maxStart", this.max);
             fc.set("events." + eventName + ".length", this.length);
+            fc.set("events." + eventName + ".max-repeat", this.maxRepeat);
             fc.set("events." + eventName + ".chance", this.chance);
             fc.set("events." + eventName + ".title", this.title);
             fc.set("events." + eventName + ".subtitle", this.subtitle);

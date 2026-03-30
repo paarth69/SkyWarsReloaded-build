@@ -34,18 +34,7 @@ public class GlassColorOption extends PlayerOption {
         File glassFile = new File(SkyWarsReloaded.get().getDataFolder(), "glasscolors.yml");
 
         if (!glassFile.exists()) {
-            if (SkyWarsReloaded.getNMS().getVersion() < 9) {
-                SkyWarsReloaded.get().saveResource("glasscolors18.yml", false);
-                File sf = new File(SkyWarsReloaded.get().getDataFolder(), "glasscolors18.yml");
-                if (sf.exists()) {
-                    boolean result = sf.renameTo(new File(SkyWarsReloaded.get().getDataFolder(), "glasscolors.yml"));
-                    if (!result) {
-                        SkyWarsReloaded.get().getLogger().info("Failed to rename 1.8 Glasscolors File");
-                    }
-                }
-            } else {
-                SkyWarsReloaded.get().saveResource("glasscolors.yml", false);
-            }
+            SkyWarsReloaded.get().saveResource("glasscolors.yml", false);
         }
 
         if (glassFile.exists()) {

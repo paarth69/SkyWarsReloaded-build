@@ -53,7 +53,7 @@ public class ASPWorldManagerImpl implements ASPWorldManager {
     @Override
     public World createEmptyWorld(String name, World.Environment environment) {
         WorldData worldData = new WorldData();
-        SlimePropertyMap propertyMap = worldData.toPropertyMap();
+        SlimePropertyMap propertyMap = new SlimePropertyMap();
         propertyMap.setValue(SlimeProperties.SPAWN_X, 0);
         propertyMap.setValue(SlimeProperties.SPAWN_Y, 64);
         propertyMap.setValue(SlimeProperties.SPAWN_Z, 0);
@@ -138,8 +138,9 @@ public class ASPWorldManagerImpl implements ASPWorldManager {
         }
 
         // If world not already loaded, we fetch & load world from SWM
+        SlimePropertyMap propertyMap = new SlimePropertyMap();
         try {
-            SlimeWorld slimeWorld = plugin.loadWorld(loader, worldName, readOnly || worldData.isReadOnly(), worldData.toPropertyMap());
+            SlimeWorld slimeWorld = plugin.loadWorld(loader, worldName, readOnly || worldData.isReadOnly(), propertyMap);
             plugin.loadWorld(slimeWorld);
         } catch (Exception e) {
             e.printStackTrace();
